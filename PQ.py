@@ -28,10 +28,13 @@ time_cost_2 = end - start
 print(Data_File.shape)
 print(Centroids_File.shape)
 
-def pq(input_data, p, centroids, iterations):
+def pq(data, P, init_centroids, max_iter = 20):
+# P divides M, P >= 2
+# init_centroids (P, K, M/P), K= 256
+# max_iter = 20
 
     #Splitting the input data into subvectors and it returns a list of arrays
-    sub_vector_list = np.split(input_data, p, axis=1)
+    sub_vector_list = np.split(data, P, axis=1)
     print(len(sub_vector_list[0]))
 
 
@@ -59,7 +62,7 @@ pq(Data_File, 2, Centroids_File, 20)
 #
 #     lastmatches=None
 #     for t in range(100):
-#         print 'Iteration %d' % t
+#         print('Iteration %d' % t)
 #         bestmatches=[[] for i in range(k)]
 #         # Find which centroid is the closest for each row
 #         for j in range(len(rows)):
