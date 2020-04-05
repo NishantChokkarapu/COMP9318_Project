@@ -31,7 +31,7 @@ print(Centroids_File.shape)
 def pq(input_data, p, centroids, iterations):
 
     #Splitting the input data into subvectors and it returns a list of arrays
-    sub_vector_list = np.split(input_data, p)
+    sub_vector_list = np.split(input_data, p, axis=1)
     print(len(sub_vector_list[0]))
 
 
