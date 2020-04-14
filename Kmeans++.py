@@ -1,6 +1,6 @@
 ## import modules here
 import numpy as np
-import pandas as pd
+# import pandas as pd
 ################# Question 1 #################
 
 class KMeans:
@@ -50,9 +50,9 @@ def kmean(data,k):
 ##############################
 import pickle
 import time
-with open('./toy_example/Data_File', 'rb') as f:
+with open('datasets/Data_File', 'rb') as f:
     Data_File = pickle.load(f, encoding = 'bytes')
 start = time.time()
-print(kmean(Data_File, 20))
+kmean(Data_File, 20)
 end = time.time()
 print('Time: ',end - start)
