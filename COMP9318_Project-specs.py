@@ -97,7 +97,10 @@ codebooks, codes = submission.pq(Data_File, P=2, init_centroids=Centroids_File, 
 end = time.time()
 time_cost_1 = end - start
 print(time_cost_1)
-
+print("Codebook shape: ",codebooks.shape)
+print(" Codebook type: ",codebooks.dtype)
+print("   Codes shape: ",codes.shape)
+print("    Codes type: ",codes.dtype)
 
 # How to run your implementation for Part 2
 with open('datasets/Query_File', 'rb') as f:
