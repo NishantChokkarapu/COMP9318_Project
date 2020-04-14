@@ -3,7 +3,8 @@ from collections import deque
 from scipy.spatial import distance
 import pickle
 import time
-
+import itertools
+import copy
 
 def pq(data, P, init_centroids, max_iter):
     final_codes_list = []
@@ -103,4 +104,121 @@ def dict_list(codes):
 
 
 def query(queries, codebooks, codes, T):
-    return [{3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}]
+    P = codebooks.shape[0]
+    codebook_len = codebooks.shape[1]
+    sub_query_list = np.split(queries, P, axis=1)
+    final_sorted_dist = []
+    index_positions = []
+    cost_coord = {}
+    queue = []
+    code_list = []
+    final_candidates = set()
+
+    for i in range(P):
+        distance_list = distance_cal(sub_query_list[i], codebooks[i], "Query")
+        final_sorted_dist.append(distance_list)
+
+    counter = 0
+    for i in range(codebook_len):
+        coordinates = [i for _ in range(P)]
+        index_positions.append(coordinates)
+        cost, orginal_coord = cost_func(final_sorted_dist, coordinates)
+        cost_coord[counter] = [cost, coordinates, orginal_coord]
+        counter += 1
+
+        if i != codebook_len - 1:
+            for j in range(P):
+                coordinates = [i for _ in range(P)]
+                coordinates[j] += 1
+                index_positions.append(coordinates)
+                cost, orginal_coord = cost_func(final_sorted_dist, coordinates)
+                cost_coord[counter] = [cost, coordinates, orginal_coord]
+                counter += 1
+
+    codes_vectors = np.split(codes, P, axis=1)
+    for i in range(P):
+        merged = list(itertools.chain.from_iterable(codes_vectors[i].tolist()))
+        code_list.append(merged)
+
+    candidates_list = []
+    T_check = 0
+    ded_check = []
+    while T_check < T:
+        # Finding the minimum cost
+        if T_check == 0:
+            element = cost_coord[0][1]
+        else:
+            element, key = find_element(queue, cost_coord)
+
+        queue, new_index_positions, new_ded_check = find_next(queue, element, index_positions, cost_coord, ded_check)
+
+        candidate, queue, final_index_positions, final_ded_check = get_Candidates(queue, new_index_positions,
+                                                                                  cost_coord, codebooks, code_list,
+                                                                                  new_ded_check)
+
+        ded_check = final_ded_check
+        index_positions = final_index_positions
+        final_candidates.update(candidate)
+
+        T_check = len(final_candidates)
+        f_list = []
+        f_list.append(final_candidates)
+
+    return f_list
+
+
+def find_next(Queue, coordinates, positions_list, cost_dict, check):
+    for i in range(len(coordinates)):
+        new_coordinates = copy.deepcopy(coordinates)
+        new_coordinates[i] += 1
+
+        # Finding the position of coordinate in the dictionary
+        if new_coordinates in positions_list:
+            pos = positions_list.index(new_coordinates)
+
+            # Checking if coorinates already in queue and for dedup
+            # The position is 1 means it has already been visited
+            # We assign to position in position list 0 when we have found the new coordinate
+            # Since the dictionary and position lists are arranged in same order we take new coordinates
+            # position from position list as dicitonary key
+            if pos not in check:
+                Queue.append(pos)
+
+    return Queue, positions_list, check
+
+
+def get_Candidates(Queue, positions_list, cost_dict, codebooks, codes, check):
+    final_candidates = []
+    coordinates, key = find_element(Queue, cost_dict)
+    Queue.remove(key)
+    check.append(key)
+
+    original_coord = cost_dict[key][2]
+
+    for i in range(len(original_coord)):
+        coor = original_coord[i]
+        z = [i for i, x in enumerate(codes[i]) if x == coor]
+        final_candidates.append(z)
+
+    final_candidates = set(list(itertools.chain.from_iterable(final_candidates)))
+
+    return final_candidates, Queue, positions_list, check
+
+
+def find_element(Queue, cost_dict):
+    ele_key = min(Queue)
+    element = cost_dict[ele_key][1]
+
+    return element, ele_key
+
+
+def cost_func(final_list, coord):
+    cost = 0
+    orginal_coord = []
+
+    for i in range(len(coord)):
+        number = coord[i]
+        cost += final_list[i][number][1]
+        orginal_coord.append(final_list[i][number][0])
+
+    return cost, orginal_coord

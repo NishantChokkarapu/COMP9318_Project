@@ -106,7 +106,7 @@ start = time.time()
 candidates = submission.query(queries, codebooks, codes, T=10)
 end = time.time()
 time_cost_2 = end - start
-
+print(time_cost_2)
 # output for part 2.
 print(candidates)
 
