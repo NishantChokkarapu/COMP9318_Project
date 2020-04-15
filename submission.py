@@ -6,18 +6,20 @@ import time
 import itertools
 import copy
 
+
 def pq(data, P, init_centroids, max_iter):
     final_codes_list = []
     final_code_book = []
     sub_vector_list = np.split(data, P, axis=1)
+    k_list = [i for i in range(init_centroids.shape[1])]
 
     for i in range(P):
         if i == 0:
-            first_code_book, first_codes_list = k_means(sub_vector_list[i], init_centroids[i], max_iter)
+            first_code_book, first_codes_list = k_means(sub_vector_list[i], init_centroids[i], k_list, max_iter)
             final_codes_list.append(first_codes_list)
             final_code_book.append(first_code_book)
         else:
-            temp_code_book, temp_codes_list = k_means(sub_vector_list[i], init_centroids[i], max_iter)
+            temp_code_book, temp_codes_list = k_means(sub_vector_list[i], init_centroids[i], k_list, max_iter)
 
             final_codes_list.append(temp_codes_list)
             final_code_book.append(temp_code_book)
@@ -31,7 +33,7 @@ def pq(data, P, init_centroids, max_iter):
     return final_code_book, final_codes
 
 
-def k_means(obs, code_book, iter=20):
+def k_means(obs, code_book, k_list, iter=20):
     difference = np.inf
     distance_mean = deque([difference], maxlen=2)
 
@@ -42,7 +44,7 @@ def k_means(obs, code_book, iter=20):
         distance_mean.append(min_distace.mean(axis=-1))
 
         # updating and creating new code books from the given observations
-        code_book = update_code_book(obs, obs_code, code_book)
+        code_book = update_code_book(obs, obs_code, code_book, k_list)
         # difference = distance_mean[0] - distance_mean[1]
 
         iteration += 1
@@ -67,20 +69,20 @@ def distance_cal(obs, code_book, query_type):
         return sorted_distace
 
 
-def update_code_book(obs, codes, code_book):
+def update_code_book(obs, codes, code_book, k_list):
     code_book_list = []
     cluster = dict_list(codes)
-    missing_centorid = sorted(set(range(codes[0], codes[-1])) - set(codes))
+    missing_centorid = sorted(set(k_list) - set(codes))
 
     for j in range(code_book.shape[0]):
         centroid_cal = 0
-        # new_centroid = []
 
-        for i in cluster[j]:
-            centroid_cal += obs[i]
+        if j in cluster:
+            for i in cluster[j]:
+                centroid_cal += obs[i]
 
-        new_centroid = centroid_cal / len(cluster[j])
-        code_book_list.append(list(new_centroid))
+            new_centroid = centroid_cal / len(cluster[j])
+            code_book_list.append(list(new_centroid))
 
     new_code_book = np.array(code_book_list)
 
@@ -88,7 +90,7 @@ def update_code_book(obs, codes, code_book):
         for i in missing_centorid:
             new_code_book = np.insert(new_code_book, i, code_book[i], 0)
 
-    return new_code_book
+    return code_book
 
 
 def dict_list(codes):
