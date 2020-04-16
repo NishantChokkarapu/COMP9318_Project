@@ -83,9 +83,20 @@
 # In[2]:
 
 
+
+import numpy as np
 import submission
 import pickle
 import time
+
+
+bad_centroids = np.load('datasets/Test_files/Bad_Centroids.npy')
+four_centroids = np.load('datasets/Test_files/Four_Centroids.npy')
+
+three2_que = np.load('datasets/Test_files/Queries/32_Q.npy')
+six4_que = np.load('datasets/Test_files/Queries/64_Q.npy')
+one28_que = np.load('datasets/Test_files/Queries/128_Q.npy')
+two56_que = np.load('datasets/Test_files/Queries/256_Q.npy')
 
 # How to run your implementation for Part 1
 with open('datasets/Data_File', 'rb') as f:

@@ -64,8 +64,10 @@ def distance_cal(obs, code_book, query_type):
         d_list = distance_array.tolist()
         distance_list = list(enumerate(d_list[0]))
         sorted_distace = sorted(distance_list, key=lambda x: x[1])
+        d_codes = [c for c, dis in sorted_distace]
+        d_cost = [dis for c, dis in sorted_distace]
 
-        return sorted_distace
+        return d_codes, d_cost
 
 
 def update_code_book(obs, codes, code_book, k_list):
@@ -104,13 +106,12 @@ def dict_list(codes):
     return clusters
 
 
-
 def query(queries, codebooks, codes, T=10):
     q_number = queries.shape[0]
     P = codebooks.shape[0]
     codebook_len = codebooks.shape[1]
-    f_candidates = []
     code_list = []
+    f_candidates = []
 
     codes_vectors = np.split(codes, P, axis=1)
     for i in range(P):
@@ -121,117 +122,88 @@ def query(queries, codebooks, codes, T=10):
         query = np.reshape(queries[k], (1, -1))
         sub_query_list = np.split(query, P, axis=1)  # Splitting the query into P parts
         final_sorted_dist = []
-        cost_coord = {}
-        index_positions = []
+        final_cost_list = []
+        cost_coor = {}
+        queue = []
+        ded_up = []
 
         for i in range(P):
-            distance_list = distance_cal(sub_query_list[i], codebooks[i], "Query")
+            distance_list, cost_list = distance_cal(sub_query_list[i], codebooks[i], "Query")
             final_sorted_dist.append(distance_list)
-            ''' final sorted list consists of list of tuples of [[((2, 64.0),(3, 128.0),(1, 256.0),
-                                                                (4, 320.0),(0, 448.0),(5, 512.0),(6, 704.0),
-                                                                (7, 896.0),............)]]'''
+            final_cost_list.append(cost_list)
 
-        counter = 0
-        for i in range(codebook_len):
-            coordinates = [i for _ in range(P)]
-            index_positions.append(coordinates)
-            cost, orginal_coord = cost_func(final_sorted_dist, coordinates)
-            cost_coord[counter] = [cost, coordinates, orginal_coord]
-            counter += 1
+        code_distance = np.transpose(np.array(final_sorted_dist))
+        code_cost = np.transpose(np.array(final_cost_list))
 
-            if i != codebook_len - 1:
-                for j in range(P):
-                    coordinates = [i for _ in range(P)]
-                    coordinates[j] += 1
-                    index_positions.append(coordinates)
-                    cost, orginal_coord = cost_func(final_sorted_dist, coordinates)
-                    cost_coord[counter] = [cost, coordinates, orginal_coord]
-                    counter += 1
+        coor = [0 for _ in range(P)]
+        first_cost = sum([code_cost[0][i] for i in range(P)])
+        cost_coor[first_cost] = [coor]
 
-        queue = []
-        final_candidates = set()
-        candidates_list = []
         T_check = 0
-        ded_check = []
+        first_loop_check = True
+        codes_check_list = [[] for _ in range(P)]
+        w_candidates = set()
         while T_check < T:
-            # Finding the minimum cost
-            if T_check == 0:
-                element = cost_coord[0][1]
+            if first_loop_check:
+                queue.append(first_cost)
+                queue, ded_up, cost_coor, coor_check = cost_neighbours(queue, ded_up, cost_coor, code_cost, P)
+                first_loop_check = False
+
             else:
-                element, key = find_element(queue, cost_coord)
+                queue, ded_up, cost_coor, coor_check = cost_neighbours(queue, ded_up, cost_coor, code_cost, P)
 
-            queue, new_ded_check = find_next(queue, element, index_positions, ded_check)
+            for column in range(P):
+                row = coor_check[column]
+                code_check = code_distance[row][column]
 
-            candidate, queue, final_ded_check = get_Candidates(queue, cost_coord, code_list, new_ded_check)
+                if code_check not in codes_check_list[column]:  # Checkin if a code of a partic
+                    candidate = set([i for i, val in enumerate(code_list[column]) if val == code_check])
 
-            ded_check = final_ded_check
-            final_candidates.update(candidate)
+                w_candidates.update(candidate)
 
-            T_check = len(final_candidates)
+            T_check = len(w_candidates)
 
-        f_candidates.append(final_candidates)
+        f_candidates.append(w_candidates)
 
     return f_candidates
 
 
-def find_next(Queue, coordinates, positions_list, check):
-    for i in range(len(coordinates)):
-        new_coordinates = copy.deepcopy(coordinates)
-        new_coordinates[i] += 1
+def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
+    key = queue[0]  # Getting the first cost from the queue
 
-        # Finding the position of coordinate in the dictionary
-        if new_coordinates in positions_list:
-            pos = positions_list.index(new_coordinates)
+    if len(cost_coor[key]) == 1:
+        coordinates = cost_coor[key].pop(0)  # Getting the coordinates of the first element in queue
+        del cost_coor[key]  # Deleting the key from the dictionary
+        heapq.heappop(queue)
+    else:
+        coordinates = cost_coor[key].pop(0)
 
-            # Checking if coorinates already in queue and for dedup
-            # The position is 1 means it has already been visited
-            # We assign to position in position list 0 when we have found the new coordinate
-            # Since the dictionary and position lists are arranged in same order we take new coordinates
-            # position from position list as dicitonary key
-            if pos not in check:
-                Queue.append(pos)
-                heapq.heapify(Queue)
+    if coordinates not in ded_up:
+        neighbours = []
 
-    return Queue, check
+        for i in range(P):
+            new_coordinates = copy.deepcopy(coordinates)
+            new_coordinates[i] = coordinates[i] + 1
 
+            neigh_cost = cal_cost(new_coordinates, code_cost)  # Calculating cost of new neighbour
 
-def get_Candidates(Queue, cost_dict, codes, check):
-    final_candidates = []
-    coordinates, key = find_element(Queue, cost_dict)
-    heapq.heappop(Queue)
-    check.append(key)
+            if neigh_cost in cost_coor:
+                cost_coor[neigh_cost].append(new_coordinates)
+            else:
+                cost_coor[neigh_cost] = [new_coordinates]
+                queue.append(neigh_cost)
 
-    original_coord = cost_dict[key][2]
+    heapq.heapify(queue)
+    ded_up.append(coordinates)  # appending the coordinates to dedup to make we have already visisted
 
-    for i in range(len(original_coord)):
-        coor = original_coord[i]
-        z = [i for i, x in enumerate(codes[i]) if x == coor]
-        final_candidates.append(z)
-
-    final_candidates = set(list(itertools.chain.from_iterable(final_candidates)))
-
-    return final_candidates, Queue, check
+    return queue, ded_up, cost_coor, coordinates
 
 
-def find_element(Queue, cost_dict):
-    #     ele_key = min(Queue)
-    ele_key = Queue[0]
-    element = cost_dict[ele_key][1]
-
-    return element, ele_key
-
-
-def cost_func(final_list, coord):
-    '''
-    What does cost funciton do?
-
-    '''
+def cal_cost(new_coordinates, code_cost):
     cost = 0
-    orginal_coord = []
 
-    for i in range(len(coord)):
-        number = coord[i]
-        cost += final_list[i][number][1]
-        orginal_coord.append(final_list[i][number][0])
+    for column in range(len(new_coordinates)):
+        row = new_coordinates[column]
+        cost += code_cost[row][column]
 
-    return cost, orginal_coord
+    return cost
