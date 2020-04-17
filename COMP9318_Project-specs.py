@@ -125,6 +125,10 @@ print(time_cost_2)
 print(candidates)
 
 
+print(codes)
+print(codebooks)
+
+
 # ## Running Time Limits
 # 
 # As shown in the above snippet, we will be recording the running time of both part 1 and part 2. Your implementation is expected to finish with Allowed time Limit. If your code takes longer than Allowed Time Limit, your program will be terminated and you will recieve 0 mark.

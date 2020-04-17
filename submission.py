@@ -91,7 +91,7 @@ def update_code_book(obs, codes, code_book, k_list):
         for i in missing_centorid:
             new_code_book = np.insert(new_code_book, i, code_book[i], 0)
 
-    return code_book
+    return new_code_book
 
 
 def dict_list(codes):
