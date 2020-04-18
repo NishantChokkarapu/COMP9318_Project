@@ -90,13 +90,25 @@ import pickle
 import time
 
 
-bad_centroids = np.load('datasets/Test_files/Bad_Centroids.npy')
-four_centroids = np.load('datasets/Test_files/Four_Centroids.npy')
+bad_centroids = np.load('datasets/Test_files/Two_Centroids/Bad_Centroids.npy')
+four_centroids = np.load('datasets/Test_files/Four_Centroids/Four_Centroids.npy')
 
-three2_que = np.load('datasets/Test_files/Queries/32_Q.npy')
-six4_que = np.load('datasets/Test_files/Queries/64_Q.npy')
-one28_que = np.load('datasets/Test_files/Queries/128_Q.npy')
-two56_que = np.load('datasets/Test_files/Queries/256_Q.npy')
+three2_que = np.load('datasets/Test_files/Two_Centroids/Queries/32_Q.npy')
+six4_que = np.load('datasets/Test_files/Two_Centroids/Queries/64_Q.npy')
+one28_que = np.load('datasets/Test_files/Two_Centroids/Queries/128_Q.npy')
+two56_que = np.load('datasets/Test_files/Two_Centroids/Queries/256_Q.npy')
+
+Test_Data_File = np.load('datasets/Test_files/Three_Centroids/Test_Data_File.npy')
+three_centroids = np.load('datasets/Test_files/Three_Centroids/Three_Centroids.npy')
+three_cen_query = np.load('datasets/Test_files/Three_Centroids/Three_Cen_Query.npy')
+
+Test_Case_2 = np.load('datasets/Test_files/Test/Test_Case_2.npy')
+Test_Case_2_Cent = np.load('datasets/Test_files/Test/Test_Case_2_Cent.npy')
+Test_Case_2_Query = np.load('datasets/Test_files/Test/Test_Case_2_Query.npy')
+Test_Case_3 = np.load('datasets/Test_files/Test/Test_Case_3.npy')
+Test_Case_3_Cent = np.load('datasets/Test_files/Test/Test_Case_3_Cent.npy')
+Test_Case_3_Query = np.load('datasets/Test_files/Test/Test_Case_3_Query.npy')
+
 
 # How to run your implementation for Part 1
 with open('datasets/Data_File', 'rb') as f:
@@ -104,7 +116,7 @@ with open('datasets/Data_File', 'rb') as f:
 with open('datasets/Centroids_File', 'rb') as f:
     Centroids_File = pickle.load(f, encoding = 'bytes')
 start = time.time()
-codebooks, codes = submission.pq(Data_File, P=2, init_centroids=Centroids_File, max_iter = 20)
+codebooks, codes = submission.pq(Test_Case_2, P=4, init_centroids=Test_Case_2_Cent, max_iter = 20)
 end = time.time()
 time_cost_1 = end - start
 print(time_cost_1)
@@ -117,7 +129,7 @@ print("    Codes type: ",codes.dtype)
 with open('datasets/Query_File', 'rb') as f:
     queries = pickle.load(f, encoding = 'bytes')
 start = time.time()
-candidates = submission.query(queries, codebooks, codes, T=10)
+candidates = submission.query(Test_Case_2_Query, codebooks, codes, T=10)
 end = time.time()
 time_cost_2 = end - start
 print(time_cost_2)

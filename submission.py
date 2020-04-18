@@ -14,11 +14,14 @@ def pq(data, P, init_centroids, max_iter):
 
     for i in range(P):
         if i == 0:
-            first_code_book, first_codes_list = k_means(sub_vector_list[i], init_centroids[i], k_list, max_iter)
+            first_code_book, codes_list = k_medians(sub_vector_list[i], init_centroids[i], k_list, max_iter)
+            first_codes_list = distance_cal(sub_vector_list[i], first_code_book, "PQ")
+
             final_codes_list.append(first_codes_list)
             final_code_book.append(first_code_book)
         else:
-            temp_code_book, temp_codes_list = k_means(sub_vector_list[i], init_centroids[i], k_list, max_iter)
+            temp_code_book, codes_list = k_medians(sub_vector_list[i], init_centroids[i], k_list, max_iter)
+            temp_codes_list = distance_cal(sub_vector_list[i], temp_code_book, "PQ")
 
             final_codes_list.append(temp_codes_list)
             final_code_book.append(temp_code_book)
@@ -32,19 +35,15 @@ def pq(data, P, init_centroids, max_iter):
     return final_code_book, final_codes
 
 
-def k_means(obs, code_book, k_list, iter=20):
-    difference = np.inf
-    distance_mean = deque([difference], maxlen=2)
+def k_medians(obs, code_book, k_list, iter=20):
 
     iteration = 0
     while (iteration < iter):
         # compute the codes and distances between each observation and code_book when the query == "PQ"
-        obs_code, min_distace = distance_cal(obs, code_book, "PQ")
-        distance_mean.append(min_distace.mean(axis=-1))
+        obs_code = distance_cal(obs, code_book, "PQ")
 
         # updating and creating new code books from the given observations
         code_book = update_code_book(obs, obs_code, code_book, k_list)
-        # difference = distance_mean[0] - distance_mean[1]
 
         iteration += 1
 
@@ -56,10 +55,8 @@ def distance_cal(obs, code_book, query_type):
 
     if query_type == 'PQ':
         code = distance_array.argmin(axis=1)
-        min_dist = distance_array[np.arange(len(code)), code]
 
-        return code, min_dist
-
+        return code
     else:
         d_list = distance_array.tolist()
         distance_list = list(enumerate(d_list[0]))
@@ -76,13 +73,13 @@ def update_code_book(obs, codes, code_book, k_list):
     missing_centorid = sorted(set(k_list) - set(codes))
 
     for j in range(code_book.shape[0]):
-        centroid_cal = 0
 
         if j in cluster:
+            centroid_cal = []
             for i in cluster[j]:
-                centroid_cal += obs[i]
+                centroid_cal.append(obs[i])
 
-            new_centroid = centroid_cal / len(cluster[j])
+            new_centroid = np.median(np.array(centroid_cal), axis=0)
             code_book_list.append(list(new_centroid))
 
     new_code_book = np.array(code_book_list)
