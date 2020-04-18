@@ -1,5 +1,4 @@
 import numpy as np
-from collections import deque
 from scipy.spatial import distance
 import itertools
 import copy
@@ -155,6 +154,7 @@ def query(queries, codebooks, codes, T=10):
 
                 if code_check not in codes_check_list[column]:  # Checkin if a code of a partic
                     candidate = set([i for i, val in enumerate(code_list[column]) if val == code_check])
+                    codes_check_list[column].append(code_check)
 
                 w_candidates.update(candidate)
 
