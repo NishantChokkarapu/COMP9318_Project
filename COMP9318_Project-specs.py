@@ -108,6 +108,7 @@ Test_Case_2_Query = np.load('datasets/Test_files/Test/Test_Case_2_Query.npy')
 Test_Case_3 = np.load('datasets/Test_files/Test/Test_Case_3.npy')
 Test_Case_3_Cent = np.load('datasets/Test_files/Test/Test_Case_3_Cent.npy')
 Test_Case_3_Query = np.load('datasets/Test_files/Test/Test_Case_3_Query.npy')
+T3 = np.array([[ 1., 2.5,  6.,   6.25, 9.25, 1.,   2.5,  6.,   6.25, 9.25]])
 
 
 # How to run your implementation for Part 1
@@ -116,7 +117,7 @@ with open('datasets/Data_File', 'rb') as f:
 with open('datasets/Centroids_File', 'rb') as f:
     Centroids_File = pickle.load(f, encoding = 'bytes')
 start = time.time()
-codebooks, codes = submission.pq(Data_File, P=2, init_centroids=Centroids_File, max_iter = 20)
+codebooks, codes = submission.pq(Test_Case_3, P=2, init_centroids=Test_Case_3_Cent, max_iter = 20)
 end = time.time()
 time_cost_1 = end - start
 print(time_cost_1)
@@ -129,7 +130,7 @@ print("    Codes type: ",codes.dtype)
 with open('datasets/Query_File', 'rb') as f:
     queries = pickle.load(f, encoding = 'bytes')
 start = time.time()
-candidates = submission.query(two56_que, codebooks, codes, T=2)
+candidates = submission.query(T3, codebooks, codes, T=2)
 end = time.time()
 time_cost_2 = end - start
 print(time_cost_2)
@@ -139,6 +140,7 @@ print(candidates)
 
 print(codes)
 print(codebooks)
+print(Test_Case_3_Query)
 
 # ## Running Time Limits
 # 
