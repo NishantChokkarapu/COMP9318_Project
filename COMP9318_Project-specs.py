@@ -117,7 +117,7 @@ with open('datasets/Data_File', 'rb') as f:
 with open('datasets/Centroids_File', 'rb') as f:
     Centroids_File = pickle.load(f, encoding = 'bytes')
 start = time.time()
-codebooks, codes = submission.pq(Test_Case_3, P=2, init_centroids=Test_Case_3_Cent, max_iter = 20)
+codebooks, codes = submission.pq(Data_File, P=2, init_centroids=Centroids_File, max_iter = 20)
 end = time.time()
 time_cost_1 = end - start
 print(time_cost_1)
@@ -130,17 +130,17 @@ print("    Codes type: ",codes.dtype)
 with open('datasets/Query_File', 'rb') as f:
     queries = pickle.load(f, encoding = 'bytes')
 start = time.time()
-candidates = submission.query(T3, codebooks, codes, T=2)
+candidates = submission.query(two56_que, codebooks, codes, T=10)
 end = time.time()
 time_cost_2 = end - start
 print(time_cost_2)
+
 # output for part 2.
 print(candidates)
 
 
 print(codes)
 print(codebooks)
-print(Test_Case_3_Query)
 
 # ## Running Time Limits
 # 

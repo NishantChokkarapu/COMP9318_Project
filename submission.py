@@ -3,7 +3,7 @@ from scipy.spatial import distance
 import itertools
 import copy
 import heapq
-
+from collections import defaultdict
 
 def pq(data, P, init_centroids, max_iter):
     final_codes_list = []
@@ -108,10 +108,15 @@ def query(queries, codebooks, codes, T=10):
     code_list = []
     f_candidates = []
 
-    codes_vectors = np.split(codes, P, axis=1)
-    for i in range(P):
-        merged = list(itertools.chain.from_iterable(codes_vectors[i].tolist()))
-        code_list.append(merged)
+    codes_dict = defaultdict(list)
+    for index, data_point in enumerate(codes):
+        codes_dict[tuple(data_point)].append(index)
+
+
+    # codes_vectors = np.split(codes, P, axis=1)
+    # for i in range(P):
+    #     merged = list(itertools.chain.from_iterable(codes_vectors[i].tolist()))
+    #     code_list.append(merged)
 
     codes_arr = np.transpose(np.array(code_list))
 
@@ -139,7 +144,7 @@ def query(queries, codebooks, codes, T=10):
 
         T_check = 0
         first_loop_check = True
-        codes_check_list = [[] for _ in range(P)]
+        codes_check_list = []
         w_candidates = set()
         while T_check < T:
             if first_loop_check:
@@ -160,8 +165,11 @@ def query(queries, codebooks, codes, T=10):
                 # if code_check not in codes_check_list[column]:  # Checkin if a code of a partic
                 #     candidate = set([i for i, val in enumerate(code_list[column]) if val == code_check])
                 #     codes_check_list[column].append(code_check)
-            candidate = np.where(((codes_arr == tuple(uv_codes)).all(axis=1)))
-            candidate = set(list(candidate[0]))
+
+            if uv_codes not in codes_check_list:
+                # candidate = np.where(((codes_arr == tuple(uv_codes)).all(axis=1)))
+                # candidate = set(list(candidate[0]))
+                candidate = set(codes_dict[tuple(uv_codes)])
 
             w_candidates.update(candidate)
 
@@ -183,9 +191,8 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
         coordinates = cost_coor[key].pop(0)
 
     if coordinates not in ded_up:
-        neighbours = []
 
-        for i in range(P-1,0,-1):
+        for i in range(P):
             new_coordinates = copy.deepcopy(coordinates)
             new_coordinates[i] = coordinates[i] + 1
 
