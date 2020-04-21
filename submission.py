@@ -103,7 +103,6 @@ def query(queries, codebooks, codes, T=10):
     P = codebooks.shape[0]
     f_candidates = []
     sub_query_list = np.split(queries, P, axis=1)
-    total = 0
 
     codes_dict = defaultdict(list)
     for index, data_point in enumerate(codes):
@@ -161,7 +160,7 @@ def query(queries, codebooks, codes, T=10):
             T_check = len(w_candidates)
 
         f_candidates.append(w_candidates)
-    print(total)
+
     return f_candidates
 
 

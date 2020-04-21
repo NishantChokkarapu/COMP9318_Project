@@ -130,7 +130,7 @@ print("    Codes type: ",codes.dtype)
 with open('datasets/Query_File', 'rb') as f:
     queries = pickle.load(f, encoding = 'bytes')
 start = time.time()
-candidates = submission.query(two56_que, codebooks, codes, T=10)
+candidates = submission.query(queries, codebooks, codes, T=10)
 end = time.time()
 time_cost_2 = end - start
 print(time_cost_2)
