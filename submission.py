@@ -114,7 +114,7 @@ def query(queries, codebooks, codes, T=10):
         cost_list = []
         cost_coor = {}
         queue = []
-        ded_up = []
+        ded_up = set()
 
         for i in range(P):
             query = np.reshape(sub_query_list[i][k], (1, -1))
@@ -165,6 +165,7 @@ def query(queries, codebooks, codes, T=10):
 
 
 def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
+    global total
     key = queue[0]  # Getting the first cost from the queue
 
     if len(cost_coor[key]) == 1:
@@ -174,8 +175,7 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
     else:
         coordinates = cost_coor[key].pop(0)
 
-    if coordinates not in ded_up:
-
+    if tuple(coordinates) not in ded_up:
         for i in range(P):
             new_coordinates = copy.deepcopy(coordinates)
             new_coordinates[i] = coordinates[i] + 1
@@ -189,8 +189,9 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
                     cost_coor[neigh_cost] = [new_coordinates]
                     queue.append(neigh_cost)
 
+
     heapq.heapify(queue)
-    ded_up.append(coordinates)  # appending the coordinates to dedup to make we have already visisted
+    ded_up.add(tuple(coordinates))  # appending the coordinates to dedup to make we have already visisted
 
     return queue, ded_up, cost_coor, coordinates
 
