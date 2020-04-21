@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.spatial import distance
-import itertools
 import copy
 import heapq
 from collections import defaultdict
@@ -57,11 +56,8 @@ def distance_cal(obs, code_book, query_type):
 
         return code
     else:
-        d_list = distance_array.tolist()
-        distance_list = list(enumerate(d_list[0]))
-        sorted_distace = sorted(distance_list, key=lambda x: x[1])
-        d_codes = [c for c, dis in sorted_distace]
-        d_cost = [dis for c, dis in sorted_distace]
+        d_codes = np.argsort(distance_array[0])
+        d_cost = np.sort(distance_array[0])
 
         return d_codes, d_cost
 
@@ -105,38 +101,31 @@ def dict_list(codes):
 def query(queries, codebooks, codes, T=10):
     q_number = queries.shape[0]
     P = codebooks.shape[0]
-    code_list = []
     f_candidates = []
+    sub_query_list = np.split(queries, P, axis=1)
+    total = 0
 
     codes_dict = defaultdict(list)
     for index, data_point in enumerate(codes):
         codes_dict[tuple(data_point)].append(index)
 
 
-    # codes_vectors = np.split(codes, P, axis=1)
-    # for i in range(P):
-    #     merged = list(itertools.chain.from_iterable(codes_vectors[i].tolist()))
-    #     code_list.append(merged)
-
-    codes_arr = np.transpose(np.array(code_list))
-
-
     for k in range(q_number):
-        query = np.reshape(queries[k], (1, -1))
-        sub_query_list = np.split(query, P, axis=1)  # Splitting the query into P parts
-        final_sorted_dist = []
-        final_cost_list = []
+        sorted_dist = []
+        cost_list = []
         cost_coor = {}
         queue = []
         ded_up = []
 
         for i in range(P):
-            distance_list, cost_list = distance_cal(sub_query_list[i], codebooks[i], "Query")
-            final_sorted_dist.append(distance_list)
-            final_cost_list.append(cost_list)
+            query = np.reshape(sub_query_list[i][k], (1, -1))
+            distance_list, temp_cost_list = distance_cal(query, codebooks[i], "Query")
+            sorted_dist.append(distance_list)
+            cost_list.append(temp_cost_list)
 
-        code_distance = np.transpose(np.array(final_sorted_dist))
-        code_cost = np.transpose(np.array(final_cost_list))
+        code_distance = np.transpose(np.array(sorted_dist))
+        code_cost = np.transpose(np.array(cost_list))
+
 
         coor = [0 for _ in range(P)]
         first_cost = sum([code_cost[0][i] for i in range(P)])
@@ -146,7 +135,9 @@ def query(queries, codebooks, codes, T=10):
         first_loop_check = True
         codes_check_list = []
         w_candidates = set()
+
         while T_check < T:
+
             if first_loop_check:
                 queue.append(first_cost)
                 queue, ded_up, cost_coor, coor_check = cost_neighbours(queue, ded_up, cost_coor, code_cost, P)
@@ -162,13 +153,7 @@ def query(queries, codebooks, codes, T=10):
 
                 uv_codes.append(code_check)
 
-                # if code_check not in codes_check_list[column]:  # Checkin if a code of a partic
-                #     candidate = set([i for i, val in enumerate(code_list[column]) if val == code_check])
-                #     codes_check_list[column].append(code_check)
-
             if uv_codes not in codes_check_list:
-                # candidate = np.where(((codes_arr == tuple(uv_codes)).all(axis=1)))
-                # candidate = set(list(candidate[0]))
                 candidate = set(codes_dict[tuple(uv_codes)])
 
             w_candidates.update(candidate)
@@ -176,7 +161,7 @@ def query(queries, codebooks, codes, T=10):
             T_check = len(w_candidates)
 
         f_candidates.append(w_candidates)
-
+    print(total)
     return f_candidates
 
 

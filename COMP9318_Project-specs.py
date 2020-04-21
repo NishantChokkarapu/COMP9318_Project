@@ -136,11 +136,11 @@ time_cost_2 = end - start
 print(time_cost_2)
 
 # output for part 2.
-print(candidates)
+# print(candidates)
 
 
-print(codes)
-print(codebooks)
+# print(codes)
+# print(codebooks)
 
 # ## Running Time Limits
 # 
@@ -160,3 +160,36 @@ print(codebooks)
 # 
 # 
 # **Note:** Every team will be entitled to **15 Feedback Attempts** (use them wisely), we will use the last submission for final evaluation.
+
+
+# sorted_distance = np.argsort(distance_array[0])
+# d_codes = sorted_distance.tolist()
+# d_cost = sorted(distance_array[0].tolist())
+
+
+# d_codes = np.argsort(distance_array[0])
+# # d_codes = sorted_distance.tolist()
+# d_cost = np.sort(distance_array[0])
+
+
+# for i in range(P):
+#     query = np.reshape(sub_query_list[i][k], (1, -1))
+#     # distance_list, temp_cost_list = distance_cal(query, codebooks[i], "Query")
+#     # sorted_dist.append(distance_list)
+#     # cost_list.append(temp_cost_list)
+#     if i == 1:
+#         f_codes, f_cost = distance_cal(query, codebooks[i], "Query")
+#     elif i == 2:
+#         d_codes, d_cost = distance_cal(query, codebooks[i], "Query")
+#         code_distances = np.column_stack((f_codes, d_codes))
+#         code_cost = np.column_stack(f_cost, d_cost)
+#     else:
+#         d_codes, d_cost = distance_cal(query, codebooks[i], "Query")
+#         d_codes = np.reshape(d_codes, (1, -1))
+#         d_cost = np.reshape(d_cost, (1, -1))
+#         code_distances = np.concatenate((code_distances, d_codes), axis=0)
+#         code_costs = np.concatenate((code_cost, d_cost))
+#
+# # Total time: 0.024183034896850586
+# code_distance = np.transpose(code_distances)
+# code_cost = np.transpose(code_costs)
