@@ -90,6 +90,8 @@ import pickle
 import time
 
 
+# Importing the test data files and assigning them to the variables for testing
+
 bad_centroids = np.load('datasets/Test_files/Two_Centroids/Bad_Centroids.npy')
 four_centroids = np.load('datasets/Test_files/Four_Centroids/Four_Centroids.npy')
 
@@ -108,8 +110,6 @@ Test_Case_2_Query = np.load('datasets/Test_files/Test/Test_Case_2_Query.npy')
 Test_Case_3 = np.load('datasets/Test_files/Test/Test_Case_3.npy')
 Test_Case_3_Cent = np.load('datasets/Test_files/Test/Test_Case_3_Cent.npy')
 Test_Case_3_Query = np.load('datasets/Test_files/Test/Test_Case_3_Query.npy')
-T3 = np.array([[ 1., 2.5, 6., 6.25, 9.25, 1., 2.5,  6., 6.25, 9.25]])
-
 
 # How to run your implementation for Part 1
 with open('datasets/Data_File', 'rb') as f:
@@ -117,7 +117,7 @@ with open('datasets/Data_File', 'rb') as f:
 with open('datasets/Centroids_File', 'rb') as f:
     Centroids_File = pickle.load(f, encoding = 'bytes')
 start = time.time()
-codebooks, codes = submission.pq(Data_File, P=4, init_centroids=four_centroids, max_iter = 20)
+codebooks, codes = submission.pq(Data_File, P=2, init_centroids=Centroids_File, max_iter = 20)
 end = time.time()
 time_cost_1 = end - start
 print(time_cost_1)
@@ -130,7 +130,7 @@ print("    Codes type: ",codes.dtype)
 with open('datasets/Query_File', 'rb') as f:
     queries = pickle.load(f, encoding = 'bytes')
 start = time.time()
-candidates = submission.query(one28_que, codebooks, codes, T=10)
+candidates = submission.query(queries, codebooks, codes, T=10)
 end = time.time()
 time_cost_2 = end - start
 print(time_cost_2)
@@ -139,8 +139,8 @@ print(time_cost_2)
 print(candidates)
 
 
-# print(codes)
-# print(codebooks)
+print(codes)
+print(codebooks)
 
 # ## Running Time Limits
 # 
@@ -162,42 +162,5 @@ print(candidates)
 # **Note:** Every team will be entitled to **15 Feedback Attempts** (use them wisely), we will use the last submission for final evaluation.
 
 
-# sorted_distance = np.argsort(distance_array[0])
-# d_codes = sorted_distance.tolist()
-# d_cost = sorted(distance_array[0].tolist())
 
-
-# d_codes = np.argsort(distance_array[0])
-# # d_codes = sorted_distance.tolist()
-# d_cost = np.sort(distance_array[0])
-
-
-# for i in range(P):
-#     query = np.reshape(sub_query_list[i][k], (1, -1))
-#     # distance_list, temp_cost_list = distance_cal(query, codebooks[i], "Query")
-#     # sorted_dist.append(distance_list)
-#     # cost_list.append(temp_cost_list)
-#     if i == 1:
-#         f_codes, f_cost = distance_cal(query, codebooks[i], "Query")
-#     elif i == 2:
-#         d_codes, d_cost = distance_cal(query, codebooks[i], "Query")
-#         code_distances = np.column_stack((f_codes, d_codes))
-#         code_cost = np.column_stack(f_cost, d_cost)
-#     else:
-#         d_codes, d_cost = distance_cal(query, codebooks[i], "Query")
-#         d_codes = np.reshape(d_codes, (1, -1))
-#         d_cost = np.reshape(d_cost, (1, -1))
-#         code_distances = np.concatenate((code_distances, d_codes), axis=0)
-#         code_costs = np.concatenate((code_cost, d_cost))
-#
-# # Total time: 0.024183034896850586
-# code_distance = np.transpose(code_distances)
-# code_cost = np.transpose(code_costs)
-
-# if len(cost_coor[key]) == 1:
-#     coordinates = cost_coor[key].pop(0)  # Getting the coordinates of the first element in queue
-#     del cost_coor[key]  # Deleting the key from the dictionary
-#     heapq.heappop(queue)
-# else:
-#     coordinates = cost_coor[key].pop(0)
 
