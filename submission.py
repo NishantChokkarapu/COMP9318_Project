@@ -9,6 +9,7 @@ from collections import defaultdict
 
 def pq(data, P, init_centroids, max_iter):
     '''
+
     :param data:
     Data is an array with shape (N,M) and dtype='float32',
     where N is the number of vectors and M is the dimensionality.
@@ -77,6 +78,7 @@ def pq(data, P, init_centroids, max_iter):
 
 def query(queries, codebooks, codes, T=10):
     '''
+
     :param queries:
     The query is an array with shape (Q, M) and dtype='float32',
     where Q is the number of query vectors and M is the dimensionality.
@@ -179,6 +181,7 @@ def query(queries, codebooks, codes, T=10):
 
 def k_medians(obs, code_book, k_list, iter=20):
     '''
+
     :param obs:
     The obs are one of the i-th partitions of the data.
 
@@ -221,6 +224,7 @@ def k_medians(obs, code_book, k_list, iter=20):
 
 def distance_cal(obs, code_book, query_type):
     '''
+
     :param obs:
     The obs are one of the i-th partitions of the data.
 
@@ -347,6 +351,7 @@ def dict_list(codes):
 
 def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
     '''
+
     :param queue:
     The queue contains the costs associated with codes in a inverted multi-index
 
@@ -412,6 +417,7 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
 
 def cal_cost(new_coordinates, code_cost):
     '''
+
     :param new_coordinates:
     These are coordinates of the each neighbour whose cost has to be calculated.
 
