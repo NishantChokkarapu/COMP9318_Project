@@ -356,7 +356,7 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
     The queue contains the costs associated with codes in a inverted multi-index
 
     :param ded_up:
-    It is a list of list which contians the coordinates which have been visited.
+    It is a set of tuples which contians the coordinates which have been visited.
 
     :param cost_coor:
     Cost_coor is a dictionary with cost as key and value as list of list whose coordinates
@@ -382,7 +382,7 @@ def cost_neighbours(queue, ded_up, cost_coor, code_cost, P):
     neighbours as P since only those neighbours have to by added to queue to avoid violating the skyline
     principle. Then the cal_cost method is used to calculate the cost of each neighbour and then added to
     the cost_coor dictionary and finally if a new key is added then the key is added to the queue and then
-    queue is heapified and coordinates are appended to the ded_up.
+    queue is heapified and coordinates are added to the ded_up.
     '''
 
     key = queue[0]  # Getting the first cost from the queue
